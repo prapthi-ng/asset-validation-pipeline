@@ -1,45 +1,64 @@
-#asset list
-asset_list=["bg_final_v2.png", "character_main.psd", "effect_v1.jpg", "logo.png","virus.exe","effect_v1.jpg","effect v2.JPG"]
+# Asset list
+asset_list = [
+    "bg_final_v2.png",
+    "character_main.psd",
+    "effect_v1.jpg",
+    "logo.png",
+    "virus.exe",
+    "effect_v1.jpg",
+    "effect v2.JPG"
+]
 
-
-#asset size database
-asset_size={
-  "bg_final_v2.png": 25,
-  "character_main.psd": 40,
-  "effect_v1.jpg": 10,
-  "logo.png": 5
+# Asset size database
+asset_size = {
+    "bg_final_v2.png": 40,
+    "character_main.psd": 30,
+    "effect_v1.jpg": 20,
+    "logo.png": 15
 }
 
-#pipeline validation function
-def validate_assets(asset_list,asset_dictionary):
-    for asset_name in asset_list:
+# File type validation
+def is_valid_file(asset):
+    return asset.lower().endswith((".png", ".psd", ".jpg"))
 
-        # 1.File type validation
-        if asset_name.lower().endswith((".png",".psd",".jpg")):
+# Size classification
+def classify_size(asset, asset_dict):
+    if asset not in asset_dict:
+        return "MISSING"
 
-            # 2. Naming cleanliness validation
-            if " " in asset_name or asset_name != asset_name.lower():
-                print(f"WARNING: Unclean asset name -> {asset_name}")
+    return "HEAVY" if asset_dict[asset] > 20 else "LIGHT"
 
-            # 3.Size info check
-            if asset_name in asset_dictionary:
+# pipeline validation function
+def validate_assets(asset_list, asset_dict):
+    seen = set()
 
-                # 4.Classification:Heavy or Light
-                size = asset_dictionary[asset_name]
+    for asset in asset_list:
 
-                if size > 20:
-                    print(f"Processing:{asset_name}|Size:{size} MB|HEAVY")
-                else:
-                    print(f"Processing:{asset_name}|Size:{size} MB|LIGHT")
+        # Duplicate check
+        if asset in seen:
+            print(f"DUPLICATE FOUND: {asset}")
+            continue
+        seen.add(asset)
 
-            # Warning:size info missing
-            else:    
-                print(f"Processing:{asset_name}|SIZE INFO MISSING")
-            
-        # Warning:invalid file type
+        # File type check
+        if not is_valid_file(asset):
+            print(f"Processing:{asset} | INVALID FILE TYPE")
+            continue
+
+        # Naming cleanliness validation
+        if " " in asset or asset != asset.lower():
+            print(f"WARNING: Unclean asset name -> {asset}")
+
+        # Size classification
+        status = classify_size(asset, asset_dict)
+
+        if status == "MISSING":
+            print(f"Processing:{asset} | SIZE INFO MISSING")
         else:
-            print(f"Processing:{asset_name}|INVALID FILE TYPE")
+            size = asset_dict[asset]
+            print(f"Processing:{asset} | Size:{size} MB | {status}")
 
-# Run pipeline validation
-validate_assets(asset_list,asset_size)       
+# pipeline validation function
+validate_assets(asset_list, asset_size)
+
 
